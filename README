@@ -5,6 +5,7 @@ commented-out sections from older revisions, etc.
 I'd also like to disclaim that this was the first homemade CPU design I made before I decided to go
 with a simpler, non-microcoded design for the one I actually finished, and that when I get around to
 going back to this one, I expect there are a lot of things that could be done better.
+
 So the microcode source itself and anything having to do with the specific design of the CPU I was working on
 I don't consider all-that-stellar, it's mostly the software tools that's potentially interesting here.
 
@@ -39,9 +40,9 @@ microcode:
 	of the clock cycle so that this actually works, but that's defined by the way the hardware
 	is wired and not of concern to the assembler).
 
-	The actual names and pin assignments of these things are specific to this (old) design
-	and don't really matter, but the interesting thing is that they're all also specified
-	in the microcode source:
+	The actual names and pin assignments of these things are specific to this (old) CPU design
+	and don't really matter, but the nice thing is that all these names and what pins they map to
+	are dynamically specified in the microcode source itself:
 
 		- inputs.def		defines names and groupings for the uROM inputs (address pins on the EPROM)
 		- outputs.def		defines names and groupings for control lines (EPROM data pins)
