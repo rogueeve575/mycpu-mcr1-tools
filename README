@@ -14,7 +14,7 @@ Overview of directories:
 	- microcode			microcode example source
 	- mc_compiler			microcode assembler
 	- assembler			traditional-level assembler for whatever is defined by the microcode
-	- emulator			ncurses-based microcode-level emulator
+	- emulator			microcode-level emulator
 	- common			routines used by mc_compiler/assembler/emulator
 	- dependencies			dependencies I threw in, see INSTALL
 
