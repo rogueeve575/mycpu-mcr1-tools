@@ -1,0 +1,24 @@
+
+/*
+	27C160 address&data input pin order, for easier routing
+	Brackets show pins which are contiguous with one another.
+	left:  [A18, A17, A7, A6, A5, A4, A3, A2, A1, A0] / [D0, D8, D9, D2, D10, D3, D11]
+	right: [A19, A8, A9, A10, A11, A12, A13, A14, A15, A16] / [D7, D14, D6, D13, D5, D12, D4]
+*/
+
+/*multiplex RESULT = D0, D8, D9, D2, D10, D3, D11, D4
+{
+}
+
+multiplex SREG = D14, D13, D12
+{
+}
+*/
+
+multiplex RESULT = D0, D1, D2, D3, D4, D5, D6, D7
+{
+}
+
+multiplex SREG = D8, D9, D10
+{
+}

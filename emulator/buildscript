@@ -1,0 +1,7 @@
+makegen
+make
+
+#%./emulator
+#%terminator --geometry=1610x900+30+25 -x ./emulator
+%terminator --geometry=1000x700+10+10 -x ./emulator
+

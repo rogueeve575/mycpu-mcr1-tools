@@ -1,0 +1,4 @@
+makegen
+make
+%./assembler tests/test.asm
+show

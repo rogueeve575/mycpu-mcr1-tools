@@ -1,0 +1,95 @@
+#!/bin/bash
+set -e
+
+echo getting sudo privs...
+sudo whoami
+
+# if we don't have makegen, shell out to build that
+set +e
+MG=$(which makegen)
+if [ $? -ne 0 ]; then
+	echo "right, we'll need to build makegen; doing that first."
+	echo
+	OLD_PWD=`pwd`
+	if [ -d /b/dev/makegen ]; then
+		cd /b/dev/makegen
+	elif [ -d ./makegen ]; then
+		cd ./makegen
+	elif [ -d ../makegen ]; then
+		cd ../makegen
+	elif [ -d ../../makegen ]; then
+		cd ../../makegen
+	elif [ -d ~/makegen ]; then
+		cd ~/makegen
+	elif [ -d ~/dev/makegen ]; then
+		cd ~/dev/makegen
+	else
+		echo "can't find makegen directory"
+		exit 1
+	fi
+	
+	echo "entered directory `pwd`"
+	./go
+	
+	if [ ! -e /usr/local/bin/makegen ]; then
+		echo
+		echo "makegen build failed. Sorry mate."
+		exit 1
+	fi
+	
+	echo
+	echo "returning to directory $OLD_PWD"
+	cd $OLD_PWD
+fi
+set -e
+
+# setup build compile stamp
+DATE=`date`
+echo "const char *libkaty_build_timestamp = \"$DATE\";" > buildstamp.cpp
+
+# get original directory of sourcec code
+LIBRARY_SOURCE_DIR=`pwd`
+
+# setup whether or not we will be using sudo
+SUDO=""
+if [ "$UID" -ne 0 ]
+then
+	SUDO="sudo"
+fi
+
+echo Compiling/executing set_fpic...
+g++ _set_fpic.cpp -o _set_fpic
+./_set_fpic
+
+rm -f *.o
+makegen
+if [ -f /proc/cpuinfo ]; then
+	make -j$(cat /proc/cpuinfo | grep "processor" | wc -l)
+else
+	make -j4
+fi
+
+echo
+echo installing library...
+
+# this sequence keeps currently-running programs using the library from crashing
+$SUDO cp libkaty.so.1.0.0 /usr/lib/libkaty.so.1.0.0.new
+$SUDO mv /usr/lib/libkaty.so.1.0.0.new /usr/lib/libkaty.so.1.0.0
+$SUDO ldconfig
+
+$SUDO mkdir -p /usr/include/katy
+$SUDO cp -v *.h /usr/include/katy/
+
+cd /usr/lib
+$SUDO rm -f libkaty.so
+$SUDO rm -f libkaty.so.1
+$SUDO ln -sf libkaty.so.1.0.0 libkaty.so
+$SUDO ln -sf libkaty.so.1.0.0 libkaty.so.1
+cd $LIBRARY_SOURCE_DIR
+
+echo Beginning test
+rm -f testkaty
+g++ testkaty.cpp -o testkaty -lkaty
+./testkaty
+rm -fr testkaty
+echo

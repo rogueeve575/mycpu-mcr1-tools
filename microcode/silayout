@@ -1,0 +1,52 @@
+0 : VERSION
+5 : RESERVED
+foreach.mc
+0 : active
+174 : nlines
+0 : scroll_y
+0 : cursor_x
+6 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+microcode.mc
+1 : active
+674 : nlines
+630 : scroll_y
+37 : cursor_x
+641 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+outputs.def
+0 : active
+162 : nlines
+24 : scroll_y
+0 : cursor_x
+6 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+save1/old_or_instruction.mc
+0 : active
+30 : nlines
+0 : scroll_y
+0 : cursor_x
+29 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+save1/microcode.mc
+0 : active
+961 : nlines
+367 : scroll_y
+7 : cursor_x
+372 : cursor_y
+0 : cursor_mode
+1 : selection_present
+1 : selection_x1
+372 : selection_y1
+6 : selection_x2
+372 : selection_y2
+-
+*END*

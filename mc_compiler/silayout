@@ -1,0 +1,111 @@
+0 : VERSION
+12 : RESERVED
+makelist.ml
+0 : active
+23 : nlines
+0 : scroll_y
+0 : cursor_x
+12 : cursor_y
+1 : cursor_mode
+0 : selection_present
+-
+main.cpp
+0 : active
+64 : nlines
+21 : scroll_y
+0 : cursor_x
+4 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+main.h
+0 : active
+14 : nlines
+0 : scroll_y
+0 : cursor_x
+10 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+compiler.cpp
+0 : active
+1193 : nlines
+143 : scroll_y
+42 : cursor_x
+192 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+compiler.h
+0 : active
+120 : nlines
+50 : scroll_y
+11 : cursor_x
+78 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+/u01/katy/dev/mycpu/common/controls.h
+0 : active
+131 : nlines
+90 : scroll_y
+0 : cursor_x
+0 : cursor_y
+1 : cursor_mode
+0 : selection_present
+-
+/u01/katy/dev/mycpu/common/common.h
+0 : active
+31 : nlines
+0 : scroll_y
+26 : cursor_x
+7 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+/u01/katy/dev/mycpu/microcode/inputs.def
+0 : active
+40 : nlines
+15 : scroll_y
+2 : cursor_x
+22 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+/u01/katy/dev/mycpu/microcode/microcode.mc
+0 : active
+669 : nlines
+0 : scroll_y
+0 : cursor_x
+6 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+/u01/katy/dev/mycpu/microcode/misc.mc
+1 : active
+261 : nlines
+129 : scroll_y
+1 : cursor_x
+151 : cursor_y
+1 : cursor_mode
+0 : selection_present
+-
+/u01/katy/dev/mycpu/microcode/outputs.def
+0 : active
+162 : nlines
+31 : scroll_y
+21 : cursor_x
+48 : cursor_y
+1 : cursor_mode
+0 : selection_present
+-
+/u01/katy/dev/mycpu/common/alu.h
+0 : active
+121 : nlines
+94 : scroll_y
+5 : cursor_x
+109 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+*END*

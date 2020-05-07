@@ -1,0 +1,59 @@
+#!/bin/bash
+set -e
+
+PROGRAM_NAME="libkaty"
+COMPILE_CMD="./go"
+TEST_SRC_FILE="katy.h"
+
+if [ "$#" == 0 ]; then
+	echo usage: $0 {server} {server} {server}...
+	exit 1
+fi
+
+SRC_DIR=$(dirname $(realpath $0))
+
+if [ ! -f "$SRC_DIR/$TEST_SRC_FILE" ]; then
+	echo "$PROGRAM_NAME: source directory cannot be found. Please move script to the directory containing $TEST_SRC_FILE."
+	exit 1
+fi
+
+# get base src directory (e.g. for /b/dev/myproject/, base src would be myproject)
+SRC_BASE_DIR=$(basename $SRC_DIR)
+
+# get temporary compile directory that we'll create on all the servers
+TEMP_COMPILE_DIR="/tmp/$SRC_BASE_DIR.`date +%s`"
+
+echo
+echo "** $PROGRAM_NAME: deploy starting **"
+echo
+echo "source tree found at $SRCDIR"
+echo "base directory name $SRC_BASE_DIR"
+echo "temporary compile directory $TEMP_COMPILE_DIR"
+echo
+
+for HOST in "$@"
+do
+	if [ $HOST == $(hostname) ]; then
+		echo Compiling locally...
+		cd $SRC_DIR
+		$COMPILE_CMD
+	else
+		echo Deploying on: $HOST...
+
+		cd $SRC_DIR
+		rm -f *.o
+
+		cd ..
+		ssh $HOST "mkdir -p $TEMP_COMPILE_DIR"
+		scp -r $SRC_BASE_DIR $HOST:$TEMP_COMPILE_DIR/
+
+		ssh $HOST "cd $TEMP_COMPILE_DIR/$SRC_BASE_DIR && $COMPILE_CMD"
+		ssh $HOST "rm $TEMP_COMPILE_DIR -fr && echo removed directory: $TEMP_COMPILE_DIR"
+	fi
+	
+	echo "Deploy to $HOST: OK"
+	echo
+done
+
+echo "Looks like we made it! Look how far we've come."
+

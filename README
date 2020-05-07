@@ -1,0 +1,80 @@
+This is a snapshot of WiP code, the directories are a bit messy, and there are probably
+some concepts I was experimenting with that now don't do anything or are only partially implemented,
+commented-out sections from older revisions, etc.
+
+I'd also like to disclaim that this was the first homemade CPU design I made before I decided to go
+with a simpler, non-microcoded design for the one I actually finished, and that when I get around to
+going back to this one, I expect there are a lot of things that could be done better.
+So the microcode source itself and anything having to do with the specific design of the CPU I was working on
+I don't consider all-that-stellar, it's mostly the software tools that's potentially interesting here.
+
+
+Overview of directories:
+	- microcode			microcode example source
+	- mc_compiler			microcode assembler
+	- assembler			traditional-level assembler for whatever is defined by the microcode
+	- emulator			ncurses-based microcode-level emulator
+	- common			routines used by mc_compiler/assembler/emulator
+	- dependencies			dependencies I threw in, see INSTALL
+
+microcode:
+	This contains an example of what microcode source (input for mc_compiler) might look like.
+	It works by defining opcodes and then within the opcode definition, you write a list
+	of which control signals should be active for each microphase, each line being one phase.
+
+	Multi-pin signals which go through a decoder such as a 74138 can be specified with the mode they
+	should emit for that phase in parenthesis. Single-pin signals are just specified by their presence.
+	If I remember correctly there are also some default values which are applied for pins not specified,
+	in particular it's the default I think for the GOTO() (pointer to next microinstruction) to be the
+	address after the current one.
+
+	Example:
+                ALU_MODE(INC), IDBUS_SRC(ALU_RESULT), LATCH(USERADDR_LO), LATCH_SREG
+
+	This says to generate a bit pattern at an address corresponding to the current opcode and
+	microphase which will set the ALU mode to "increment", gate the ALU output onto the internal
+	data bus, latch the contents of the data bus into a register called USERADDR_LO (an internal
+	register used by the CPU) and also raises the control line which updates the status register
+	from the ALU condition code output (the latches don't actually happen until the low-going edge
+	of the clock cycle so that this actually works, but that's defined by the way the hardware
+	is wired and not of concern to the assembler).
+
+	The actual names and pin assignments of these things are specific to this (old) design
+	and don't really matter, but the interesting thing is that they're all also specified
+	in the microcode source:
+
+		- inputs.def		defines names and groupings for the uROM inputs (address pins on the EPROM)
+		- outputs.def		defines names and groupings for control lines (EPROM data pins)
+		- microcode.mc		the main microcode source file, which can include others
+
+	You can also include other .mc files from within the main ucode source file, and define macros,
+	see for example the @fetch macro which is the first phase(s) of every instruction.
+
+	Macros can take parameters which is used to batch-generate instructions for every register combination.
+
+	you can also write if statements which "test" additional inputs to the microcode EPROM; this works
+	by generating multiple versions of the code at different addresses.
+
+	Oh, and the actual opcode numbers/bit patterns for the instructions are automatically allocated, unless
+	you explicitly specify a specific opcode number you want to use.
+
+mc_compiler:
+	This is the program which creates the microcode ROM images from the above source. It's hardcoded
+	to use ../microcode/microcode.mc as follows the current directory structure. It also outputs some
+	metadata which I think is used by the assembler/emulator programs, and can optionally generate the
+	ALU, as at this time I wrote these tools I was planning to use another large EPROM for an ALU.
+
+assembler:
+	This is your typical assembler. What's somewhat neat about it though is that it's dynamic to
+	whatever is defined in the microcode source. So as soon as you add/modify an instruction in
+	the microcode, that change is available in the assembler without changing or recompiling it.
+
+emulator:
+	The emulator interprets the microcode in the same way as the CPU would, and gives you a nice
+	text-mode GUI debugger-like display of both the assembler source being executed by the emulated
+	CPU, as well as the microops which make up the current instruction, so you can step through
+	a clock-cycle/microphase at a time.
+
+common:
+	This has some routines used by all of the programs, mainly a lexer/scanner/tokenizer piece
+	used by the mc_compiler and assembler.

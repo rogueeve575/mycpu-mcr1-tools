@@ -1,0 +1,10 @@
+#./go
+make
+
+#%cd /
+%./makegen --help
+
+#%cd /b/dev/midi/luapad
+#%makegen
+
+show

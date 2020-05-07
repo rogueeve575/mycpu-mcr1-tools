@@ -1,0 +1,29 @@
+
+/*
+	Defines inputs going into the ROM, mapping them to pin sets.
+	Some names such as OPCODE are special builtins and are known to
+	and handled by the compiler.
+	
+	For others, the option "conditional" can be added.
+	This means that the input is something you can write in an "if"
+	statement in the .mc. Microops will be written to all addresses
+	corresponding to all combinations of conditionals for which they
+	are relevant--this will normally be all conditionals unless the
+	statement is in an "if" block placing conditions on the line.
+*/
+
+/*
+	27C512 address input pin order, for easier routing
+	Brackets show pins which are contiguous with one another.
+	left:  [A15, A12, A7, A6, A5, A4, A3, A2, A1, A0]
+	right: [A14, A13, A8, A9, A11], [A10]
+*/
+
+define OPCODE = A7,A6,A5,A4,A3,A2,A1,A0
+define PHASE = A13,A8,A9,A11,A10
+
+// these are the latched-for-the-microcode versions (LATCH_SREG)
+// these need to be in the same order as their bitmasks in SREG (LSB first)
+define Z = A14 conditional
+define C = A15 conditional
+define V = A12 conditional

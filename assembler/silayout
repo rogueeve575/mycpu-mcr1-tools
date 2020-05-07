@@ -1,0 +1,57 @@
+0 : VERSION
+6 : RESERVED
+makelist.ml
+0 : active
+20 : nlines
+0 : scroll_y
+0 : cursor_x
+19 : cursor_y
+1 : cursor_mode
+0 : selection_present
+-
+main.cpp
+0 : active
+49 : nlines
+17 : scroll_y
+9 : cursor_x
+46 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+main.h
+0 : active
+12 : nlines
+0 : scroll_y
+22 : cursor_x
+8 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+assembler.cpp
+0 : active
+581 : nlines
+25 : scroll_y
+2 : cursor_x
+48 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+assembler.h
+0 : active
+107 : nlines
+5 : scroll_y
+5 : cursor_x
+15 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+tests/test.asm
+1 : active
+50 : nlines
+0 : scroll_y
+7 : cursor_x
+16 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+*END*

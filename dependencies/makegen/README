@@ -1,0 +1,33 @@
+<h2>makegen</h2>
+
+An old tool I've used for a long time that you'll find references to in many of my programs (most notably, this is what ".fdh" files are about).
+
+Because I publish the files it creates, you don't actually NEED this to compile any of my programs, but it might come in handy.
+
+
+What sucks:
+  - makefiles can have a somewhat awkward syntax
+  - makefiles require you to manually keep updated all the dependencies of each file. If you add too many, your compile can take longer than necessary. If you miss one, your program might suddenly start exhibiting mysterious bugs when something is changed until you "make clean".
+  - when adding a new global function to a C/CPP file, you need to stop and copy it's prototype to a header file somewhere before it can be referenced higher in the file or by other files. In C, if you then forget to #include the right header file with the prototype somewhere so that calls to the function from a particular module become an implicit definition...more bugs.
+
+makegen attempts to automate all this for simple projects.
+
+To use:
+  - create a file makelist.ml listing the base C files of your project and what compiler/linker to use (see my other projects for examples of the syntax of the makelist.ml file)
+  - #include at the top of each file, below the other includes, a ".fdh" (function definition header) file with the same name as that file.
+  - put makegen into your buildscript just before running "make"
+  - all dependencies will be calculated and dynamically updated for you automatically, and you can reference non-class-member functions from any point without worrying about prototypes or having them clutter up your .h files.
+
+
+Compiling makegen:
+
+On most systems, the "./go" script will automatically compile and install makegen into /usr/local/bin/.
+
+Otherwise, you should be able to simply type "make".
+
+
+My apologies for the condition of the source...as I said it is quite old and since it works, I haven't yet redone it.
+
+It will bug on occasion, although nothing serious. Generally it has to do with makegen incorrectly identifying something as a prototype when it isn't, due to it's lack of a proper lexical analyzer, and trying to put it into a .fdh file, breaking your compile until you slightly reformat the line that confused it. Alternatively, as a workaround you can put "MG:IGNORE" into a comment on the offending line.
+
+I don't recommend using the "caching"-related options; they were never fully completed and I can't guarantee they're reliable. makegen is very fast though, so they're not really necessary; the time it adds to your build even without caching is only a fraction of a second.

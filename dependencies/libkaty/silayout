@@ -1,0 +1,227 @@
+0 : VERSION
+24 : RESERVED
+buildscript
+0 : active
+2 : nlines
+0 : scroll_y
+2 : cursor_x
+0 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+makelist.ml
+0 : active
+703 : nlines
+0 : scroll_y
+0 : cursor_x
+6 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+stat.cpp
+0 : active
+472 : nlines
+0 : scroll_y
+0 : cursor_x
+6 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+stat.h
+0 : active
+51 : nlines
+8 : scroll_y
+0 : cursor_x
+48 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+tcpstuff.cpp
+0 : active
+324 : nlines
+0 : scroll_y
+0 : cursor_x
+6 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+ini.cpp
+0 : active
+508 : nlines
+0 : scroll_y
+0 : cursor_x
+6 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+misc.h
+0 : active
+114 : nlines
+60 : scroll_y
+18 : cursor_x
+83 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+timer.cpp
+0 : active
+103 : nlines
+60 : scroll_y
+2 : cursor_x
+78 : cursor_y
+1 : cursor_mode
+0 : selection_present
+-
+timer.h
+0 : active
+127 : nlines
+0 : scroll_y
+0 : cursor_x
+123 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+beep.cpp
+0 : active
+172 : nlines
+0 : scroll_y
+0 : cursor_x
+6 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+DString.h
+0 : active
+70 : nlines
+37 : scroll_y
+0 : cursor_x
+69 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+DBuffer.cpp
+0 : active
+314 : nlines
+62 : scroll_y
+0 : cursor_x
+88 : cursor_y
+1 : cursor_mode
+0 : selection_present
+-
+DBuffer.h
+0 : active
+70 : nlines
+18 : scroll_y
+33 : cursor_x
+38 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+StringList.h
+0 : active
+46 : nlines
+11 : scroll_y
+0 : cursor_x
+6 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+StringList.cpp
+0 : active
+234 : nlines
+73 : scroll_y
+1 : cursor_x
+94 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+misc.cpp
+0 : active
+1302 : nlines
+798 : scroll_y
+12 : cursor_x
+826 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+BList.h
+0 : active
+294 : nlines
+245 : scroll_y
+27 : cursor_x
+280 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+BList.cpp
+0 : active
+492 : nlines
+0 : scroll_y
+0 : cursor_x
+1 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+CondVar.h
+0 : active
+79 : nlines
+9 : scroll_y
+27 : cursor_x
+29 : cursor_y
+0 : cursor_mode
+1 : selection_present
+27 : selection_x1
+29 : selection_y1
+1 : selection_x2
+41 : selection_y2
+-
+semaphore.cpp
+0 : active
+93 : nlines
+29 : scroll_y
+1 : cursor_x
+54 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+semaphore.h
+0 : active
+25 : nlines
+0 : scroll_y
+6 : cursor_x
+13 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+locker.h
+0 : active
+43 : nlines
+0 : scroll_y
+2 : cursor_x
+30 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+autofree.h
+0 : active
+23 : nlines
+0 : scroll_y
+2 : cursor_x
+18 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+llist.h
+1 : active
+161 : nlines
+42 : scroll_y
+20 : cursor_x
+72 : cursor_y
+0 : cursor_mode
+1 : selection_present
+19 : selection_x1
+72 : selection_y1
+22 : selection_x2
+72 : selection_y2
+-
+*END*

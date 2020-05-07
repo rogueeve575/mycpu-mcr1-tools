@@ -1,0 +1,124 @@
+0 : VERSION
+13 : RESERVED
+buildscript
+0 : active
+8 : nlines
+0 : scroll_y
+1 : cursor_x
+4 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+makelist.ml
+0 : active
+26 : nlines
+0 : scroll_y
+19 : cursor_x
+12 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+main.cpp
+0 : active
+62 : nlines
+6 : scroll_y
+36 : cursor_x
+21 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+main.h
+0 : active
+18 : nlines
+0 : scroll_y
+28 : cursor_x
+11 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+emulator.cpp
+0 : active
+676 : nlines
+105 : scroll_y
+46 : cursor_x
+60 : cursor_y
+0 : cursor_mode
+1 : selection_present
+42 : selection_x1
+60 : selection_y1
+55 : selection_x2
+60 : selection_y2
+-
+emulator.h
+1 : active
+213 : nlines
+0 : scroll_y
+97 : cursor_x
+27 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+scrollwindow.cpp
+0 : active
+172 : nlines
+88 : scroll_y
+2 : cursor_x
+105 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+scrollwindow.h
+0 : active
+61 : nlines
+0 : scroll_y
+1 : cursor_x
+24 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+asmscrollwindow.cpp
+0 : active
+150 : nlines
+68 : scroll_y
+19 : cursor_x
+82 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+asmscrollwindow.h
+0 : active
+43 : nlines
+0 : scroll_y
+0 : cursor_x
+17 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+curses.cpp
+0 : active
+361 : nlines
+127 : scroll_y
+68 : cursor_x
+129 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+curses.h
+0 : active
+68 : nlines
+0 : scroll_y
+86 : cursor_x
+12 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+cstat.cpp
+0 : active
+131 : nlines
+0 : scroll_y
+19 : cursor_x
+5 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+*END*

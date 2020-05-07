@@ -1,0 +1,25 @@
+If you'd like to compile any of this, you'll need to install my "common routines" library libkaty
+under the 'dependencies' directory.
+
+libkaty $ sudo ./go
+
+The "go" script will install it easily on most Linux systems.
+
+
+
+The "makegen" program is installed in the same manner. This is an old tool I use to generate Makefile
+from the makelist.ml as well as some automatic function prototypes. It isn't really required to compile
+any of the programs since the Makefile is already present, but is included for good measure.
+
+The normal way to compile any of these is just:
+
+$ makegen (optional)
+$ make
+$ ./[name of program]
+
+You will need to
+
+apt-get install build-essential libncurses5-dev
+
+...to install the system headers required by the programs. For non Debian/Ubuntu distros,
+it should just require gcc, and ncurses to build the emulator (and of course, libkaty).

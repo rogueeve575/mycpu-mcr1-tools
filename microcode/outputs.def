@@ -1,0 +1,167 @@
+
+/*
+	microcode is implemented via 2 27c160's with common address inputs,
+	allowing up to 31 outputs (D31)
+
+	M27C160 is the microcode ROM part #.
+	A0-A18, 16-bit output, two in parallel will give us 19 inputs and 32 outputs.
+	Pin ordering:
+		Inputs left: A18, A17, [A7-A0]
+		Input right: A19, [A8-A16]
+		Outputs left:  D0, D8, D1, D9, D2, D10, D3, D11
+		Outputs right: D15, D7, D14, D5, D13, D5, D12, D4.
+		VCC is in LR and GND is in middle left/right at pins 12&31
+		/BYTE (pin 32), which is also VPP must be held high to keep it in 16-bit mode
+*/
+
+// note on circuitry for IDBUS_SRC and LATCH:
+// firstly, LATCH's enable is only active when the clock is low.
+// the top two bits of the control determine which of 3 74138's
+// become active.
+// this is done without any additional logic, by wiring thusly:
+// decoder 1 and 2 have the LSB of the 2 bits wired to a
+// positive and negative enable respectively and the MSB
+// wired to the other negative enable.
+// decoder 3 has the MSB wired to the positive enable
+// and the LSB wired to a negative enable.
+// this gives 24 possible outputs with functions 24-31 doing nothing
+
+multiplex IDBUS_SRC = D7,D6,D5,D4,D3 DEFAULT=VALUE
+{
+	// on register card 1
+	r0 = 0, r1 = 1, r2 = 2, r3 = 3,
+	r4 = 4, r5 = 5, r6 = 6, r7 = 7,
+	
+	// on register card 2
+	SPH = 9, SPL = 10,
+	LRH = 11, LRL = 12,
+	tr0 = 13, tr1 = 14,	// temporary registers for use by microcode
+	//15 reserved, because LATCH needs a NONE
+	
+	MEMORY_READ = 16,	// gates data bus onto IDBUS, while asserting /RD
+	ADDRBUS_HI = 17,	// gates MSB of address bus to data bus
+	ADDRBUS_LO = 18,	// gates LSB of address bus to data bus
+	ALU_RESULT = 19,	// output of ALU appears on IDBUS
+	// reserved: 20-22
+	VALUE = 23			// put onto IDBUS a constant value stored in microcode and specified by the VALUE() control
+}
+
+multiplex VALUE = D24,D25,D26,D27,D28,D29,D30,D31 DEFAULT=0xff
+{
+}
+
+multiplex ADDRBUS_SRC = D8 DEFAULT=1
+{
+	PC = 0,
+	USERADDR = 1
+}
+
+// all latches are delayed until low-going edge of clock via one of the enable pins on the 74138 demuxes.
+// see comments in IDBUS_SRC for details on hardware/backplane implementation;
+// this one works much the same.
+multiplex LATCH = D15,D14,D13,D12,D11 DEFAULT=NONE
+{
+	r0 = 0, r1 = 1, r2 = 2, r3 = 3,
+	r4 = 4, r5 = 5, r6 = 6, r7 = 7,
+	
+	SPH = 9, SPL = 10,
+	LRH = 11, LRL = 12,
+	tr0 = 13, tr1 = 14,	// temporary registers for use by microcode
+	NONE = 15,
+	
+	// everything after this has the MSB of the 5-bit code high.
+	// that activates the 74138 on the main board (otherwise the lower 3 bits of LATCH is routed out to be decoded by register cards).
+	OPCODE = 16,
+	USERADDR_HI = 17,	// these two regs output to address bus and can be gated on by ADDRBUS_SRC,,,
+	USERADDR_LO = 18,	// ...they can not be read back via the ID bus
+	MEMORY_WRITE = 19,  // ** We need to add a way to have this gate IDBUS onto data before clock falls and WR is asserted
+	ALU_INPUT_1 = 20,
+	ALU_INPUT_2 = 21,
+	PC_LO = 22,
+	PC_HI = 23,
+	
+	// this is identical to the LATCH code for OPCODE save for 1 bit (the 4th of the 5 bits).
+	// two OR gates and a NOT gate can multiplex that bit to whether the latch will be activated on OPCODE, or on PARM.
+	// PARM is used to specify source and/or destination registers for two-byte opcodes--
+	// see the LATCH_FROM and IDBUS_FROM controls.
+	//
+	// TODO: but *WHY* do we need this special bit position for PARM?
+	// check schematic. seems like it'd be better to use a regular value
+	// and save this position for MEMORY_WRITE
+	// ANSWER: we did this so that we wouldn't need a 4th 74138. can we
+	// save a value somewhere so this isn't necessary?
+	PARM = 24,
+}
+
+// 3-bit output to set one of the 8 ALU modes
+multiplex ALU_MODE = D2,D1,D0
+{
+	ADD = 0,
+	SUB = 1,
+	ADD_AND_INC = 2,		// add inputs 1&2 and then add 1 to the result. used for carry during ADC.
+	SUB_AND_DEC = 3,		// subtract inputs 1&2 and then subtract 1 from the result. used for carry during SBC.
+	AND = 4,
+	INC = 5,
+	DEC = 6,
+	UNARY = 7				// extended unary operations. ALU_INPUT_2 sets the mode; ALU_RESULT is an operation on input 1
+}
+
+// Latches the condition codes from SREG into the second SREG latch
+// (the copy of SREG that is actually presented to the control rom inputs).
+// This is used by instructions like ADC so that we can conditionally
+// operate on the last value of e.g. C while also generating a new C.
+// The latch occurs on the low-going edge of the clock, so you can include this
+// in the same phase as an ALU instruction.
+//
+// this also activates PORTIO - a sharing of the same line.
+// They shouldn't conflict; I can't see why you would care about the state of one when using the other.
+define LATCH_SREG = D9 ACTIVE_LOW
+//alias PORTIO = LATCH_SREG
+
+// increments the counters holding the PC. Delayed by 150ns after low-going
+// half of clock, so you can latch and increment in one microop.
+define INC_PC = D10
+
+// these allow a second byte of opcode, stored in PARM and broken up into two nibbles, to replace
+// the IDBUS and LATCH codes coming out of the microcode ROM with any of their lower 16 possible values--
+// the lower 16 values of each correspond to the register set.
+// Typically, the high nibble will specify a destination register and the low nibble a source.
+// Because many operations such as addition will require reading the destination register
+// before updating it, IDBUS_FROM is able to select either nibble to replace the microcode,
+// whereas only enough buffers for the high nibble are provided for LATCH_FROM.
+multiplex LATCH_FROM = D16 DEFAULT=MICROCODE
+{
+	PARMDST = 0,
+	MICROCODE = 1
+}
+
+multiplex IDBUS_FROM = D17,D18 DEFAULT=MICROCODE
+{
+	MICROCODE = 3,
+	PARMDST = 2,
+	PARMSRC = 1
+	//INVALID = 0	// this would activate both PARMHI & PARMLO buffers at once - bad. perhaps hardware could prevent this.
+}
+
+// specifies the next phase of microcode to be executed after this one.
+// normally this will contain (current phase + 1), and if not specified it will be automatically written as that.
+// but using it allows microcode loops and other cool stuff.
+// it feeds directly into the phase register inputs, and is latched on each positive-going edge of clock.
+multiplex GOTO = D19,D20,D21,D22,D23 DEFAULT=NEXTOP
+{
+	NEXTOP = 0
+}
+
+/*/ ------ NOTES--------------------------------------------------
+
+// IDBUS_SRC:
+// in general, each group of 8 values is handled by a different card on the CPU backplane.
+// D0-D2 selects one of the 8 registers on the card, and D3/D4 handles (via either jumpers on card or logic on the backplane)
+// whether that card is selected for decode the 3 LSBs.
+// each card has it's own 74138 to decode the D0-D2 signals to a register.
+//
+// the special functions of the 3rd group such as MEMORY_READ etc are handled
+// by a 74138 on the mainboard.
+
+/*/
+

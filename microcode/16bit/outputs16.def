@@ -1,0 +1,170 @@
+
+/*
+	output of control rom IC is latched in order to eliminate wildness
+	while address lines settle.
+	the latches are clocked 90ns after each phase incrementation
+	(i.e. positive-going edge of clock)
+	
+	microcode is implemented via 3 27c512's with common address inputs,
+	allowing up to 24 outputs (D23)
+*/
+
+/*
+	27C512 data output pin order, for easier routing
+	Brackets show pins which are contiguous with one another.
+	left:  [D0, D1, D2]
+	right: [D7, D6, D5, D4, D3]
+	
+	left:  [D8, D9, D10]
+	right: [D15, D14, D13, D12, D11]
+	
+	left:  [D16, D17, D18]
+	right: [D23, D22, D21, D20, D19]
+*/
+
+// 3-bit output to set one of the 8 ALU modes
+multiplex ALU_MODE = D2,D1,D0
+{
+	ADD = 0,
+	SUB = 1,
+	ADD_AND_INC = 2,		// add inputs 1&2 and then add 1 to the result. used for carry during ADC.
+	SUB_AND_DEC = 3,		// subtract inputs 1&2 and then subtract 1 from the result. used for carry during SBC.
+	AND = 4,
+	INC = 5,
+	DEC = 6,
+	UNARY = 7				// extended unary operations. ALU_INPUT_2 sets the mode; ALU_RESULT is an operation on input 1
+}
+
+// each group of 8 values is handled by a different card on the backplane.
+// D0-D2 selects the register, and D3/D4 handles (via either jumpers or logic on the backplane)
+// whether that card is selected when the IDBUS_OE signal is activated.
+// each card has it's own 74138 to decode the D0-D2 signals into a register.
+//
+// the special functions of the 3rd group such as MEMORY_READ etc are handled
+// by a 74138 on the mainboard.
+multiplex IDBUS_SRC = D7,D6,D5,D4,D3 DEFAULT=CONST_03
+{
+	r0l = 0, r1l = 1, r2l = 2, r3l = 3, r4l = 4,
+	tr0 = 5, tr1 = 6,	// temporary registers for use by microcode
+	SPL = 7,			// lower stack register
+	
+	r0h = 8, r1h = 9, r2h = 10, r3h = 11, r4h = 12,
+	LRL = 13, LRH = 14,	// link register to store return address of jsr. return by using mov pc, lr
+	SPH = 15,			// upper stack register (the stack always stores in CS page)
+	
+	MEMORY_READ = 16,	// gates data bus onto IDBUS, while asserting /RD
+	ADDRBUS_HI = 17,	// gates MSB of address bus to data bus
+	ADDRBUS_LO = 18,	// gates LSB of address bus to data bus
+	ALU_RESULT = 19,	// output of ALU appears on IDBUS
+	CONST_00 = 20,
+	CONST_01 = 21,
+	CONST_03 = 22,
+	CONST_FF = 23,
+	
+	PAGESEL = 24,		// read which of cs, ds, es or fs is active
+	CURSEG = 25,		// read contents of the active page register (this actually works like ADDRBUS_HI/LO but is for the high byte of the full 24-bit address)
+	
+	// optional 4th register card
+	/*BRL = 24, BRH = 25,		// branch register for quick jumps (QJMP)
+	FPL = 26, FPH = 27,		// frame pointer
+	
+	rb0 = 28, rb1 = 29, rb2 = 30,	// extra byte-wide registers
+	// the 8th register is unpopulated on the 4th card, because LATCH needs the space for NONE
+	
+	_Reserved31 = 31*/
+}
+
+multiplex ADDRBUS_SRC = D8 DEFAULT=USERADDR
+{
+	PC = 0,
+	USERADDR = 1
+}
+
+// all latches are delayed until low-going edge of clock via one of the enable pins on the 74138 demuxes.
+// see comments in IDBUS_SRC for details on hardware/backplane implementation;
+// this one works much the same.
+multiplex LATCH = D15,D14,D13,D12,D11 DEFAULT=NONE
+{
+	r0l = 0, r1l = 1, r2l = 2, r3l = 3, r4l = 4,
+	tr0 = 5, tr1 = 6,	// temporary registers for use by microcode
+	SPL = 7,			// lower stack register
+	
+	r0h = 8, r1h = 9, r2h = 10, r3h = 11, r4h = 12,
+	LRL = 13, LRH = 14,	// link register to store return address of jsr. return by using mov pc, lr
+	SPH = 15,
+	
+	MEMORY_WRITE = 16,
+	USERADDR_HI = 17,	// these two regs output to address bus and can be gated on by ADDRBUS_SRC,,,
+	USERADDR_LO = 18,	// ...they can not be read back via the ID bus
+	ALU_INPUT_1 = 19,
+	ALU_INPUT_2 = 20,
+	PC_LO = 21,
+	PC_HI = 22,
+	OPCODE = 23,
+	
+	// this 2-bit register determines which of cs, ds, es, or fs will be used for memory accesses
+	// it can be overridden by including USE_CS in a microcode line.
+	PAGESEL = 24,
+	CS = 25,			// these are the page register which store the upper 8-bits of the 24-bit external address bus.
+	DS = 26,			// page registers can only be written, not read.
+	ES = 27,			// they output at all times onto the upper address bus.
+	FS = 28,			// which one is used is selected by the PAGESEL register.
+	
+	NONE = 31
+}
+
+// Latches the condition codes from SREG into the second SREG latch
+// (the copy of SREG that is actually presented to the control rom inputs).
+// This is used by instructions like ADC so that we can conditionally
+// operate on the last value of e.g. C while also generating a new C.
+// The latch occurs on the low-going edge of the clock, so you can include this
+// in the same phase as an ALU instruction.
+//
+// this line also has secondary functions. All functions are activated at once, but they should not conflict.
+// PORTIO: causes IDBUS_SRC(READ_MEMORY) and WRITE_MEMORY to activate /IORD and /IOWR lines
+// 		   instead of the usual /RD and /WR (i.e. "in" and "out" instructions; port IO access instead of memory).
+define LATCH_SREG = D9 ACTIVE_LOW
+//alias PORTIO = LATCH_SREG
+
+// increments the counters holding the PC. Delayed by 150ns after low-going
+// half of clock, so you can latch and increment in one microop.
+define INC_PC = D10
+
+// forces memory accesses to use CS as the upper 8-bits of the 24-bit address, regardless of
+// which page register the PAGESEL register is pointing at.
+define USE_CS = D16 ACTIVE_LOW
+
+define DEBUG_LED = D17
+define PORTIO = D18 ACTIVE_LOW
+
+// specifies the next phase of microcode to be executed after this one.
+// normally this will contain (current phase + 1), and if not specified it will be automatically written as that.
+// but using it allows microcode loops and other cool stuff.
+// it feeds directly into the phase register inputs, and is latched on each positive-going edge of clock.
+multiplex GOTO = D23,D22,D21,D20,D19 DEFAULT=NEXTOP
+{
+	NEXTOP = 0
+}
+
+//define _Reserved17 = D17
+//define _Reserved18 = D18
+
+/*
+enum unary_operations
+{
+	// the operations start with 8 ops for the 8 possible combinations of Z,C,V. Output value is undefined,
+	// but status bits are set as requested, according to: Z=0x01 C=0x02 V=0x04
+	// This allows to restore a previous retrieved SREG register simply by passing it in as a unary operation #.
+	SET_SREG_0, SET_SREG_1, SET_SREG_2, SET_SREG_3,
+	SET_SREG_4, SET_SREG_5, SET_SREG_6, SET_SREG_7,
+	
+	LSL_1, LSL_2, LSL_3, LSL_4, LSL_5, LSL_6, LSL_7,
+	LSR_1, LSR_2, LSR_3, LSR_4, LSR_5, LSR_6, LSR_7,
+	ROL_1, ROL_2, ROL_3, ROL_4, ROL_5, ROL_6, ROL_7,
+	ROR_1, ROR_2, ROR_3, ROR_4, ROR_5, ROR_6, ROR_7,
+	OR_1, OR_2, OR_4, OR_8, OR_16, OR_32, OR_64, OR_128,
+	MUL_3, MUL_5, MUL_10,
+	
+	LAST
+}
+*/

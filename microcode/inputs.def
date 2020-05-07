@@ -1,0 +1,39 @@
+
+/*
+	Defines inputs going into the ROM, mapping them to pin sets.
+	Some names such as OPCODE are special builtins and are known to
+	and handled by the compiler.
+	
+	For others, the option "conditional" can be added.
+	This means that the input is something you can write in an "if"
+	statement in the .mc. Microops will be written to all addresses
+	corresponding to all combinations of conditionals for which they
+	are relevant--this will normally be all conditionals unless the
+	statement is in an "if" block placing conditions on the line.
+*/
+
+define PHASE = A0,A1,A2,A3,A4	// to be renamed to "MIP"?
+
+// these are the latched-for-the-microcode versions (LATCH_SREG)
+define Z = A5 conditional
+define C = A6 conditional
+define V = A7 conditional
+define N = A8 conditional
+
+//define P = A17 conditional	// permission bit for priviledged instructions
+
+define OPCODE = A9,A10,A11,A12,A13,A14,A15,A16
+
+// 17-18 reserved
+
+/*	M27C160 is the microcode ROM part #.
+	A0-A18, 16-bit output, two in parallel will give us 19 inputs and 32 outputs.
+	Pin ordering:
+		Inputs left: A18, A17, [A7-A0]
+		Input right: A19, [A8-A16]
+		Outputs left:  D0, D8, D1, D9, D2, D10, D3, D11
+		Outputs right: D15, D7, D14, D5, D13, D5, D12, D4.
+		VCC is in LR and GND is in middle left/right at pins 12&31
+		/BYTE (pin 32), which is also VPP must be held high to keep it in 16-bit mode
+*/
+

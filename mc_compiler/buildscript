@@ -1,0 +1,4 @@
+makegen
+make
+%./mc_compiler
+show
